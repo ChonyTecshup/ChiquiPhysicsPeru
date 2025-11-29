@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChiquiPhysics - Aprende Física Divirtiéndote</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* IMAGEN DE CHISPA */
+        .mascot-placeholder {
+            background-image: url('https://i.imgur.com/RK82SsM.jpeg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+        }
+        
+        /* UTILIDADES */
+        .hidden { display: none !important; }
+        .module-menu-item.active {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            font-weight: 600;
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        /* CARRUSEL */
+        .carousel-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            height: 500px;
+        }
+        @media (max-width: 768px) {
+            .carousel-container { height: 350px; }
+            .carousel-title { font-size: 2rem !important; }
+        }
+        .carousel-slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 1s ease-in-out;
+            pointer-events: none;
+        }
+        .carousel-slide.active { opacity: 1; pointer-events: auto; }
+        .carousel-image {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: brightness(0.7);
+        }
+        .carousel-content {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            color: white; padding: 40px;
+            transform: translateY(20px); opacity: 0;
+            transition: all 0.5s ease 0.3s;
+        }
+        .carousel-slide.active .carousel-content { transform: translateY(0); opacity: 1; }
+        .carousel-title {
+            font-size: 3rem; font-weight: 900; margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+        .carousel-description {
+            font-size: 1.3rem; margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); max-width: 600px;
+        }
+        .carousel-btn {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0c4a6e; border: none; padding: 15px 35px;
+            border-radius: 50px; font-weight: bold; font-size: 1.2rem;
+            cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .carousel-btn:hover {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .carousel-indicators {
+            position: absolute; bottom: 30px; right: 40px;
+            display: flex; gap: 15px; z-index: 10;
+        }
+        .carousel-indicator {
+            width: 12px; height: 12px; border-radius: 50%;
+            background: rgba(255,255,255,0.4); cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .carousel-indicator.active { background: #fbbf24; transform: scale(1.5); }
+        .carousel-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+            color: white; font-size: 2rem; width: 50px; height: 50px;
+            border-radius: 50%; cursor: pointer; transition: all 0.3s ease;
+            backdrop-filter: blur(5px); z-index: 10; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .carousel-nav:hover { background: rgba(255,255,255,0.9); color: #0c4a6e; }
+        .carousel-prev { left: 20px; }
+        .carousel-next { right: 20px; }
+
+        /* MÓDULOS */
+        .module-card {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); transition: all 0.4s ease;
+            border: 1px solid #f1f5f9; position: relative;
+            display: flex; flex-direction: column;
+        }
+        .module-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 40px rgba(14, 165, 233, 0.15); border-color: #bae6fd;
+        }
+        .module-image {
+            width: 100%; height: 200px; object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        .module-card:hover .module-image { transform: scale(1.1); }
+        .module-content { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+        .module-badge {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255, 255, 255, 0.95); color: #d97706;
+            padding: 6px 14px; border-radius: 99px; font-weight: 800;
+            font-size: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(4px);
+        }
+        .module-title {
+            font-size: 1.5rem; font-weight: 800; color: #0f172a;
+            margin-bottom: 10px; line-height: 1.3;
+        }
+        .module-description {
+            color: #64748b; margin-bottom: 20px; line-height: 1.6;
+            font-size: 1rem; flex-grow: 1;
+        }
+        .module-features {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+        }
+        .module-feature {
+            background: #f0f9ff; padding: 6px 12px; border-radius: 8px;
+            font-size: 0.85rem; color: #0369a1; font-weight: 600;
+        }
+        .module-btn {
+            background: #0ea5e9; color: white; border: none;
+            padding: 12px 20px; border-radius: 12px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s ease; width: 100%;
+            text-align: center;
+        }
+        .module-btn:hover { background: #0284c7; transform: scale(1.02); }
+
+        /* HERO & UI */
+        .hero-section {
+            background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
+            color: white; padding: 80px 0; border-radius: 0 0 50px 50px;
+            margin-bottom: 40px; position: relative; overflow: hidden;
+        }
+        .hero-pattern {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(#ffffff 1px, transparent 1px);
+            background-size: 30px 30px; opacity: 0.1;
+        }
+        .alpaca-progress {
+            background: #fffbeb; border: 2px solid #fcd34d;
+            border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center;
+        }
+        .progress-bar {
+            width: 100%; height: 16px; background: #e5e7eb;
+            border-radius: 99px; overflow: hidden; margin: 12px 0;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .practice-question {
+            background: white; border-radius: 16px; padding: 25px;
+            margin: 20px 0; border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .practice-option {
+            display: block; width: 100%; text-align: left; background: #f8fafc;
+            border: 2px solid transparent; border-radius: 10px;
+            padding: 14px 18px; margin: 8px 0; cursor: pointer;
+            transition: all 0.2s; font-weight: 500;
+        }
+        .practice-option:hover { background: #e0f2fe; border-color: #bae6fd; color: #0284c7; }
+        .practice-option.selected { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+        .practice-option.correct { background: #d1fae5; color: #065f46; border-color: #10b981; }
+        .practice-option.incorrect { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+        
+        /* CHAT */
+        .mini-ai-chat {
+            background: #f8fafc; border-radius: 16px; padding: 20px;
+            border: 1px solid #cbd5e1;
+        }
+        .ai-message {
+            margin: 8px 0; padding: 10px 14px; border-radius: 12px;
+            max-width: 85%; font-size: 0.95rem; animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .ai-user-message { background: #e0f2fe; color: #075985; margin-left: auto; border-bottom-right-radius: 2px; }
+        .ai-bot-message { background: white; border: 1px solid #e2e8f0; color: #334155; border-bottom-left-radius: 2px; }
+        
+        /* PENSANDO ANIMACION */
+        .thinking-dots:after {
+            content: '.';
+            animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;
+            padding: 12px 24px; border-radius: 10px; font-weight: 700; transition: transform 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); }
+        .btn-secondary {
+            background: white; color: #0c4a6e; border: 2px solid #e0f2fe;
+            padding: 10px 22px; border-radius: 10px; font-weight: 700; transition: all 0.2s;
+        }
+        .btn-secondary:hover { background: #f0f9ff; border-color: #bae6fd; color: #0284c7; }
+        
+        /* VIDEO */
+        .video-link-container {
+            position: relative; width: 100%; height: 0; padding-bottom: 56.25%;
+            background-color: #000; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; display: block;
+        }
+        .video-link-container:hover { transform: scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+        .video-thumbnail {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; opacity: 0.8; transition: opacity 0.3s ease;
+        }
+        .video-link-container:hover .video-thumbnail { opacity: 0.6; }
+        .play-button-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 70px; height: 70px; background-color: rgba(255, 0, 0, 0.9);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .play-button-overlay::before {
+            content: ''; width: 0; height: 0; border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent; border-left: 20px solid white; margin-left: 4px;
+        }
+        .video-link-container:hover .play-button-overlay { transform: translate(-50%, -50%) scale(1.1); background-color: #ff0000; }
+        .youtube-label {
+            position: absolute; bottom: 15px; right: 15px; background-color: rgba(0,0,0,0.8);
+            color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
+            font-weight: bold; display: flex; align-items: center; gap: 5px;
+        }
+
+        /* MODAL */
+        .chat-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            z-index: 100; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .chat-modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .chat-modal-content {
+            background: white; width: 90%; max-width: 500px; height: 80vh;
+            border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .chat-modal-overlay.open .chat-modal-content { transform: scale(1); }
+        .chat-header {
+            background: linear-gradient(135deg, #fbbf24, #d97706); padding: 15px 20px;
+            color: #78350f; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;
+        }
+    </style>
+    <script>
+        MathJax = {
+          tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+          svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-slate-800">
+
+    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" id="nav-home" class="text-2xl font-black text-sky-800 flex items-center gap-2 hover:scale-105 transition">
+                <span class="text-3xl">🔬</span> ChiquiPhysics
+            </a>
+            <div class="flex space-x-4 items-center">
+                <button id="nav-modules" class="btn-secondary">📚 Módulos</button>
+                <button id="nav-learn" class="bg-amber-400 text-amber-900 font-bold py-2 px-6 rounded-full hover:bg-amber-300 transition shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5">
+                    <span>💬</span> ¡Chat con Chispa!
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CHAT GLOBAL (MODAL) -->
+    <div id="chat-modal" class="chat-modal-overlay">
+        <div class="chat-modal-content">
+            <div class="chat-header">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl bg-white/30 rounded-full p-1">🦙</span>
+                    <div>
+                        <h3 class="font-black text-lg">Chat con Chispa</h3>
+                        <p class="text-xs text-amber-900 font-semibold opacity-80">Tu compañera de estudio</p>
+                    </div>
+                </div>
+                <button id="close-chat" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 transition">✕</button>
+            </div>
+            <div id="global-ai-messages" class="flex-1 bg-slate-50 p-4 overflow-y-auto space-y-3">
+                <div class="ai-message ai-bot-message">
+                    ¡Hola! Soy Chispa, tu asistente científica 🦙. <br>
+                    Estoy aquí para ayudarte con tus tareas de física. ¿Qué quieres aprender hoy?
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100">
+                <div class="flex gap-2">
+                    <input type="text" id="global-ai-input" class="flex-1 bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200 transition" placeholder="Escribe tu duda aquí..." onkeypress="handleGlobalAiEnter(event)">
+                    <button onclick="sendGlobalAiMessage()" class="bg-amber-400 text-amber-900 px-4 py-2 rounded-xl font-bold hover:bg-amber-300 transition shadow-sm">Enviar ➤</button>
+                </div>
+                <p class="text-center text-xs text-gray-400 mt-2">Recuerda: ¡Solo preguntas de estudio!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero-section text-center">
+        <div class="hero-pattern"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <h1 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">
+                ¡Descubre el Mundo <br/><span class="text-sky-300">de la Física!</span>
+            </h1>
+            <p class="text-xl text-sky-100 max-w-2xl mx-auto mb-10 font-medium">
+                Conceptos científicos explicados de forma divertida con Chispa, nuestra alpaca científica.
+            </p>
+        </div>
+    </section>
+
+    <!-- MAIN VIEW -->
+    <main id="main-content" class="container mx-auto px-6 pb-20">
+        
+        <!-- CAROUSEL -->
+        <section class="mb-24">
+            <div class="carousel-container group">
+                <!-- Slide 1: Lab Cool -->
+                <div class="carousel-slide active" data-module="modulo-1">
+                    <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=2070&q=80" alt="Medidas" class="carousel-image">
+                    <div class="carousel-content">
+                        <h2 class="carousel-title">🔍 El Mundo de las Medidas</h2>
+                        <p class="carousel-description">Metros, kilogramos y segundos. Aprende a medir el universo.</p>
+                        <button class="carousel-btn" data-module="modulo-1">Explorar</button>
+                    </div>
+                </div>
+                <!-- Slide 2: Prisms -->
+                <div class="carousel-slide" data-module="modulo-2">
+                    <img src="https://i.imgur.com/VMiJKvb.jpeg" alt="Luz" class="carousel-image">
+                    <div class="carousel-content">
+                        <h2 class="carousel-title">🌈 La Magia de la Luz</h2>
+                        <p class="carousel-description">Reflexión, refracción y el misterio del arcoíris.</p>
+                        <button class="carousel-btn" data-module="modulo-2">Descubrir</button>
+                    </div>
+                </div>
+                <!-- Slide 3: Roller Coaster Loop -->
+                <div class="carousel-slide" data-module="modulo-3">
+                    <img src="https://i.imgur.com/rP9nirT.jpeg" alt="Montaña Rusa" class="carousel-image">
+                    <div class="carousel-content">
+                        <h2 class="carousel-title">🎢 Montaña Rusa de Energía</h2>
+                        <p class="carousel-description">¡Velocidad y movimiento! Descubre cómo funciona la energía.</p>
+                        <button class="carousel-btn" data-module="modulo-3">Acelerar</button>
+                    </div>
+                </div>
+
+                <button class="carousel-nav carousel-prev group-hover:bg-white/20">❮</button>
+                <button class="carousel-nav carousel-next group-hover:bg-white/20">❯</button>
+
+                <div class="carousel-indicators">
+                    <div class="carousel-indicator active" data-slide="0"></div>
+                    <div class="carousel-indicator" data-slide="1"></div>
+                    <div class="carousel-indicator" data-slide="2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULES GRID -->
+        <section id="physics-modules" class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <span class="text-sky-600 font-bold tracking-wider uppercase text-sm">Contenido Educativo</span>
+                <h2 class="text-4xl font-black text-slate-800 mt-2">Elige Tu Aventura</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Mod 1 -->
+                <div class="module-card" data-module="modulo-1">
+                    <div class="overflow-hidden h-[220px]">
+                        <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80" alt="Magnitudes" class="module-image">
+                    </div>
+                    <div class="module-content">
+                        <div class="module-badge">⭐ Básico</div>
+                        <h3 class="module-title">Magnitudes y Medidas</h3>
+                        <p class="module-description">¿Cuánto pesa? ¿Qué tan lejos está? Domina las herramientas de medición.</p>
+                        <div class="module-features">
+                            <span class="module-feature">📏 Longitud</span>
+                            <span class="module-feature">⚖️ Masa</span>
+                            <span class="module-feature">⏱️ Tiempo</span>
+                        </div>
+                        <button class="module-btn mt-4" data-module="modulo-1">Comenzar Módulo</button>
+                    </div>
+                </div>
+
+                <!-- Mod 2 -->
+                <div class="module-card" data-module="modulo-2">
+                    <div class="overflow-hidden h-[220px]">
+                        <img src="https://i.imgur.com/VMiJKvb.jpeg" alt="Luz" class="module-image">
+                    </div>
+                    <div class="module-content">
+                        <div class="module-badge">🔮 Intermedio</div>
+                        <h3 class="module-title">Luz y Óptica</h3>
+                        <p class="module-description">Descubre por qué vemos colores y cómo funcionan los espejos mágicos.</p>
+                        <div class="module-features">
+                            <span class="module-feature">✨ Reflexión</span>
+                            <span class="module-feature">🌈 Arcoíris</span>
+                            <span class="module-feature">👓 Lentes</span>
+                        </div>
+                        <button class="module-btn mt-4" data-module="modulo-2">Comenzar Módulo</button>
+                    </div>
+                </div>
+
+                <!-- Mod 3 -->
+                <div class="module-card" data-module="modulo-3">
+                    <div class="overflow-hidden h-[220px]">
+                        <img src="https://i.imgur.com/rP9nirT.jpeg" alt="Energía" class="module-image">
+                    </div>
+                    <div class="module-content">
+                        <div class="module-badge">🚀 Avanzado</div>
+                        <h3 class="module-title">Energía y Movimiento</h3>
+                        <p class="module-description">Explora cómo se mueven las cosas con energía cinética y potencial.</p>
+                        <div class="module-features">
+                            <span class="module-feature">⚡ Energía</span>
+                            <span class="module-feature">🎢 Velocidad</span>
+                            <span class="module-feature">🛹 Fricción</span>
+                        </div>
+                        <button class="module-btn mt-4" data-module="modulo-3">Comenzar Módulo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MASCOT -->
+        <section class="mt-24 bg-gradient-to-r from-sky-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-white opacity-10 rounded-full"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-40 h-40 bg-white opacity-10 rounded-full"></div>
+            <div class="flex flex-col md:flex-row items-center gap-10 relative z-10">
+                <div class="w-full md:w-1/3 flex justify-center">
+                    <div class="mascot-placeholder transform hover:scale-105 transition duration-500"></div>
+                </div>
+                <div class="w-full md:w-2/3 text-center md:text-left">
+                    <h2 class="text-3xl md:text-4xl font-black mb-4">¡Hola, soy Chispa! 🦙</h2>
+                    <p class="text-lg text-sky-100 mb-8 leading-relaxed">
+                        Soy tu compañera de laboratorio. Por cada pregunta que respondas bien en los cuestionarios, ganarás puntos para completar mi barra de energía. <br>
+                        <span class="font-bold text-amber-300">¿Estás listo para el reto científico?</span>
+                    </p>
+                    <button onclick="document.getElementById('nav-learn').click()" class="bg-amber-400 text-amber-900 font-bold py-3 px-8 rounded-xl hover:bg-amber-300 transition shadow-lg transform hover:-translate-y-1">
+                        ¡Hablar con Chispa!
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- LESSON -->
+    <section id="lesson-content" class="hidden container mx-auto px-4 py-8 min-h-screen">
+        <button id="back-to-home" class="mb-6 flex items-center gap-2 text-sky-700 font-bold hover:text-sky-900 transition bg-white px-4 py-2 rounded-lg shadow-sm"><span>←</span> Volver al Inicio</button>
+        <h1 id="lesson-title" class="text-3xl md:text-4xl font-black text-sky-900 mb-8 text-center"></h1>
+        <div class="flex flex-col lg:flex-row gap-8">
+            <aside class="w-full lg:w-1/4">
+                <nav id="module-menu" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Ruta de Aprendizaje</h3>
+                    <ul class="space-y-2"></ul>
+                </nav>
+            </aside>
+            <main class="w-full lg:w-3/4">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-10 min-h-[500px]">
+                    <h2 id="step-title" class="text-2xl md:text-3xl font-bold text-slate-800 mb-6 pb-4 border-b border-gray-100"></h2>
+                    <div id="step-content" class="prose prose-lg max-w-none text-slate-600"></div>
+                </div>
+            </main>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-300 py-12 mt-auto">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-2xl font-black text-white mb-2">ChiquiPhysics</p>
+            <p class="text-sm opacity-60">Ciencia divertida para mentes curiosas.</p>
+            <div class="mt-8 pt-8 border-t border-slate-800 text-xs text-slate-500">
+                &copy; 2025 ChiquiPhysics. Hecho con curiosidad.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // PRINT HELPER
+            window.printImage = (url) => {
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Imprimir Recompensa - ChiquiPhysics</title>
+                        <style>
+                            body { margin: 0; display: flex; justify-content: center; align-items: flex-start; padding-top: 20px; }
+                            img { max-width: 100%; max-height: 95vh; object-fit: contain; }
+                            @media print { .no-print { display: none; } }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="\${url}" onload="setTimeout(() => { window.print(); }, 500);">
+                        <div class="no-print" style="position:fixed; bottom:20px; right:20px; background:white; padding:10px; border:1px solid #ccc; border-radius:5px; cursor:pointer;" onclick="window.print()">🖨️ Imprimir de nuevo</div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            }
+
+            // CAROUSEL
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.carousel-slide');
+            const indicators = document.querySelectorAll('.carousel-indicator');
+            const totalSlides = slides.length;
+            let slideInterval;
+
+            function showSlide(index) {
+                slides.forEach(s => s.classList.remove('active'));
+                indicators.forEach(i => i.classList.remove('active'));
+                slides[index].classList.add('active');
+                indicators[index].classList.add('active');
+                currentSlide = index;
+            }
+            function nextSlide() { showSlide((currentSlide + 1) % totalSlides); }
+            function prevSlide() { showSlide((currentSlide - 1 + totalSlides) % totalSlides); }
+            
+            function startSlideShow() { slideInterval = setInterval(nextSlide, 5000); }
+            function stopSlideShow() { clearInterval(slideInterval); }
+
+            document.querySelector('.carousel-next').addEventListener('click', () => { stopSlideShow(); nextSlide(); startSlideShow(); });
+            document.querySelector('.carousel-prev').addEventListener('click', () => { stopSlideShow(); prevSlide(); startSlideShow(); });
+            indicators.forEach((ind, idx) => {
+                ind.addEventListener('click', () => { stopSlideShow(); showSlide(idx); startSlideShow(); });
+            });
+            const carouselContainer = document.querySelector('.carousel-container');
+            carouselContainer.addEventListener('mouseenter', stopSlideShow);
+            carouselContainer.addEventListener('mouseleave', startSlideShow);
+            startSlideShow();
+
+            // NAVIGATION
+            const mainContent = document.getElementById('main-content');
+            const lessonContent = document.getElementById('lesson-content');
+            
+            function toggleView(showLesson) {
+                if (showLesson) {
+                    mainContent.classList.add('hidden');
+                    lessonContent.classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                } else {
+                    mainContent.classList.remove('hidden');
+                    lessonContent.classList.add('hidden');
+                }
+            }
+            document.getElementById('back-to-home').addEventListener('click', () => toggleView(false));
+            document.getElementById('nav-home').addEventListener('click', (e) => { e.preventDefault(); toggleView(false); });
+            document.getElementById('nav-learn').addEventListener('click', (e) => { e.preventDefault(); toggleChat(true); });
+            document.getElementById('nav-modules').addEventListener('click', (e) => { e.preventDefault(); toggleView(false); document.getElementById('physics-modules').scrollIntoView({behavior:'smooth'}); });
+
+            // CHAT
+            function toggleChat(show) {
+                const modal = document.getElementById('chat-modal');
+                if (show) {
+                    modal.classList.add('open');
+                    document.getElementById('global-ai-input').focus();
+                } else {
+                    modal.classList.remove('open');
+                }
+            }
+            document.getElementById('close-chat').addEventListener('click', () => toggleChat(false));
+            document.getElementById('chat-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('chat-modal')) toggleChat(false);
+            });
+
+            // CONTENT DATA
+            const modules = {
+                'modulo-1': {
+                    title: 'Módulo 1: Magnitudes',
+                    steps: [
+                        {
+                            title: 'Introducción a Medir',
+                            contentTitle: '¿Qué significa medir?',
+                            type: 'video',
+                            embedId: 'f_V5o9tfrhQ', 
+                            desc: 'Descubre por qué necesitamos reglas, balanzas y relojes en nuestra vida diaria.',
+                            keyPoints: ['Magnitud: Algo que se puede medir', 'Unidad: El patrón de comparación', 'Instrumento: La herramienta']
+                        },
+                        {
+                            title: 'Lectura: Historia de las Medidas',
+                            contentTitle: '📜 La Gran Historia: De los Pies del Rey a los Rayos Láser',
+                            type: 'read',
+                            html: `
+                                <div class="prose prose-lg text-slate-600 max-w-none">
+                                    <p class="lead text-xl text-slate-700 font-medium mb-6">
+                                        ¡Hola, futuro científico! 🕵️‍♂️ ¿Alguna vez te has preguntado por qué un kilo de helado de chocolate pesa exactamente lo mismo aquí que en China, en la Luna o en Marte? ¿O por qué un metro mide igual en tu escuela que en la escuela de un niño en Japón? ¡La respuesta es una historia fascinante de caos y orden!
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-sky-800 mt-8 mb-4">El Caos de los Tiempos Antiguos</h3>
+                                    <p>
+                                        Imagina que viajas en el tiempo, hace cientos de años. Quieres construir una casa del árbol con tu mejor amigo. Tú decides usar tus propios pasos para medir la madera: "Necesito tablas de 5 pasos de largo". Tu amigo, que es un poco más bajito que tú, corta las tablas usando <em>sus</em> pasos. Como sus piernas son más cortas, sus 5 pasos son mucho más pequeños que los tuyos. ¡Resultado! La casa del árbol queda totalmente chueca y se cae. 🏠🥴
+                                    </p>
+                                    <p>
+                                        Esto era un problema real y gigante. En la antigüedad, la gente usaba partes de su cuerpo para medir. Un "pie" era literalmente el tamaño del pie del rey que gobernaba en ese momento. Un "codo" era la distancia desde el codo hasta la punta del dedo medio. El problema era obvio: cada vez que cambiaba el rey, ¡cambiaban todas las medidas del reino! Los comerciantes se peleaban en los mercados porque nadie se ponía de acuerdo en cuánto tela estaban comprando. ¡Era un verdadero lío!
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-sky-800 mt-8 mb-4">La Revolución Métrica: ¡Orden en la Sala!</h3>
+                                    <p>
+                                        Cansados de tanta confusión, un grupo de científicos muy inteligentes se reunió en Francia hace más de 200 años (durante la Revolución Francesa). Decidieron que el mundo necesitaba un sistema único, justo y que nunca cambiara, sin importar quién fuera el rey. Así nació el <strong>Sistema Internacional de Unidades (SI)</strong>.
+                                    </p>
+                                    <p>Eligieron a tres campeones principales que serían los jefes de la medición:</p>
+
+                                    <div class="grid md:grid-cols-3 gap-6 my-8">
+                                        <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm">
+                                            <div class="text-4xl mb-3">📏</div>
+                                            <h4 class="font-bold text-blue-900 text-lg">El Metro (m)</h4>
+                                            <p class="text-sm text-blue-800 mt-2">
+                                                ¡El rey de las distancias! Originalmente, se definió midiendo una parte del planeta Tierra (desde el Polo Norte hasta el Ecuador). Hoy en día es aún más genial: se define usando la velocidad de la luz. ¡Es tan exacto que sirve para medir desde un átomo hasta una galaxia!
+                                            </p>
+                                        </div>
+                                        <div class="bg-amber-50 p-5 rounded-xl border border-amber-100 shadow-sm">
+                                            <div class="text-4xl mb-3">⚖️</div>
+                                            <h4 class="font-bold text-amber-900 text-lg">El Kilogramo (kg)</h4>
+                                            <p class="text-sm text-amber-800 mt-2">
+                                                ¡El jefe del peso! Nos ayuda a saber cuánta "materia" (cosas) tiene un cuerpo. Durante mucho tiempo, el kilo fue un cilindro de metal brillante guardado bajo tres llaves en una bóveda en París. ¡Nadie podía tocarlo!
+                                            </p>
+                                        </div>
+                                        <div class="bg-purple-50 p-5 rounded-xl border border-purple-100 shadow-sm">
+                                            <div class="text-4xl mb-3">⏱️</div>
+                                            <h4 class="font-bold text-purple-900 text-lg">El Segundo (s)</h4>
+                                            <p class="text-sm text-purple-800 mt-2">
+                                                ¡El dueño del tiempo! No es solo el "tic-tac" de tu reloj. Los científicos usan relojes atómicos súper avanzados que cuentan las vibraciones de los átomos. Son tan precisos que no se atrasarían ni un segundo en 100 millones de años.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="text-2xl font-bold text-sky-800 mt-8 mb-4">¿Por qué es esto tan importante?</h3>
+                                    <p>
+                                        Gracias a que todo el mundo se puso de acuerdo, podemos hacer cosas increíbles. Los ingenieros de diferentes países pueden trabajar juntos para construir la Estación Espacial Internacional. Los médicos pueden recetar la cantidad exacta de medicina para curarte. Y tú puedes compartir planos de LEGO con un amigo en Australia sabiendo que sus piezas encajarán con las tuyas. 
+                                    </p>
+                                    <p class="italic mt-4 text-slate-500 border-l-4 border-slate-300 pl-4">
+                                        <strong>Dato Curioso:</strong> Una vez, una sonda espacial enviada a Marte se estrelló porque un equipo de ingenieros usó "pies y pulgadas" y el otro usó "metros". ¡Ups! Por eso es vital que todos hablemos el mismo idioma científico. 🌍🤝
+                                    </p>
+                                </div>
+                            `
+                        },
+                        {
+                            title: 'Desafío de Chispa',
+                            contentTitle: 'Pon a prueba tu conocimiento',
+                            type: 'quiz',
+                            quizId: 'quiz-1'
+                        },
+                        {
+                            title: 'Historia Curiosa',
+                            contentTitle: '¿Cómo medían antes?',
+                            type: 'video',
+                            embedId: '7r2xz7tKY24',
+                            desc: '¡Increíble! Los egipcios usaban sus brazos para medir pirámides.',
+                            keyPoints: ['Codo: Medida antigua', 'Pie: Usado por romanos', 'Sistema Métrico: La solución moderna']
+                        },
+                        {
+                            title: 'Chat con Chispa',
+                            contentTitle: '💬 Conversa con Chispa',
+                            type: 'ai',
+                            aiId: 'ai-1'
+                        }
+                    ]
+                },
+                'modulo-2': {
+                    title: 'Módulo 2: La Luz',
+                    steps: [
+                        {
+                            title: 'Introducción: Comportamiento',
+                            contentTitle: 'Reflexión y Refracción',
+                            type: 'video',
+                            embedId: 'GGHHBgUjdYE',
+                            desc: 'Observa cómo la luz se comporta al chocar con espejos y al entrar en el agua.',
+                            keyPoints: ['La luz viaja en línea recta', 'Reflexión: Rebote en espejos', 'Refracción: Cambio de dirección en agua']
+                        },
+                        {
+                            title: 'Lectura: El Viaje del Fotón',
+                            contentTitle: '⚡ El Increíble Viaje de Rayito: Secretos de la Luz',
+                            type: 'read',
+                            html: `
+                                <div class="prose prose-lg text-slate-600 max-w-none">
+                                    <p class="lead text-xl text-slate-700 font-medium mb-6">
+                                        ¿Alguna vez te has preguntado qué es la luz? No es solo lo que sale de tu lámpara. ¡Es una de las cosas más extrañas y rápidas de todo el universo!
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-purple-800 mt-8 mb-4">1. El Campeón de Velocidad Universal 🏁</h3>
+                                    <p>
+                                        Imagina la carrera más rápida del mundo. Un auto de Fórmula 1 es rápido, un avión es muy rápido, y un cohete espacial es súper rápido. Pero ninguno de ellos tiene ninguna oportunidad contra la luz.
+                                    </p>
+                                    <p>
+                                        La luz viaja a la velocidad alucinante de <strong>300,000 kilómetros por segundo</strong>. Para que te hagas una idea de lo loco que es esto: en el tiempo que te toma parpadear una sola vez (¡hazlo ahora!), un rayo de luz podría darle la vuelta a todo el planeta Tierra ¡7 veces completas! Por eso, cuando enciendes el interruptor de tu cuarto, la luz aparece instantáneamente. ¡ZAS! No tiene que "viajar" porque llega casi al mismo tiempo que sale.
+                                    </p>
+                                    <p>
+                                        Incluso la luz del Sol, que está lejísimos en el espacio, tarda solo 8 minutos en llegar a tu cara. ¡Estás viendo luz "vieja" de hace 8 minutos!
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-purple-800 mt-8 mb-4">2. El Secreto del Arcoíris Escondido 🌈</h3>
+                                    <p>
+                                        Mira la luz del Sol. Parece blanca o amarillenta, ¿verdad? Pues te voy a contar un secreto: ¡te está engañando! La luz blanca es en realidad una mezcla de <strong>todos los colores del universo</strong> juntos.
+                                    </p>
+                                    <p>
+                                        Hace muchos años, un científico muy curioso (y con una peluca muy grande) llamado <strong>Isaac Newton</strong> hizo un experimento mágico. Se encerró en un cuarto oscuro, hizo un agujerito en la ventana para que entrara un rayito de sol y puso un cristal triangular llamado "prisma" en el camino.
+                                    </p>
+                                    <p>
+                                        ¡Sorpresa! Al atravesar el cristal, la luz blanca se rompió y se separó en un hermoso abanico de colores: rojo, naranja, amarillo, verde, azul, añil y violeta. ¡Los mismos colores del arcoíris! Y eso es exactamente lo que pasa cuando llueve y sale el sol al mismo tiempo: las gotitas de agua funcionan como millones de pequeños prismas flotantes que pintan el cielo.
+                                    </p>
+
+                                    <div class="bg-yellow-50 p-6 rounded-xl border border-yellow-200 my-8 shadow-sm">
+                                        <h4 class="font-bold text-yellow-900 text-lg mb-2">🤔 El Misterio de la Manzana Roja</h4>
+                                        <p class="text-yellow-800">
+                                            Si la luz del sol tiene todos los colores, ¿por qué una manzana se ve roja? Resulta que la manzana es un poco "egoísta". Cuando la luz blanca la golpea, la piel de la manzana se traga (absorbe) todos los colores del arcoíris... ¡menos uno! Rechaza el color rojo y lo hace rebotar. Ese rayo rojo rebotado viaja hasta tus ojos y tu cerebro dice: "¡Ajá! ¡Es una manzana roja!". Básicamente, ¡los objetos son del color que rechazan! 🍎
+                                        </p>
+                                    </div>
+
+                                    <h3 class="text-2xl font-bold text-purple-800 mt-8 mb-4">3. Magia con Espejos y Agua</h3>
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li><strong>Reflexión (El Rebote):</strong> La luz es como una pelota de tenis. Si la lanzas contra una pared lisa, rebota. Los espejos son superficies súper lisas donde la luz choca y vuelve hacia ti, ¡permitiéndote ver tu propia cara! 🪞</li>
+                                        <li><strong>Refracción (El Truco de Magia):</strong> ¿Alguna vez has metido un popote o un lápiz en un vaso de agua y parece que se rompió o se dobló? ¡No se rompió! Lo que pasa es que la luz es un poco "perezosa". Cuando pasa del aire al agua, tiene que nadar y cambia de velocidad. Ese cambio hace que la luz se tuerza, creando una ilusión óptica. ✏️💧</li>
+                                    </ul>
+                                </div>
+                            `
+                        },
+                        {
+                            title: 'Simulador Óptico',
+                            contentTitle: 'Laboratorio Virtual',
+                            type: 'iframe',
+                            url: 'https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_es.html',
+                            desc: 'Juega con el láser. Intenta hacerlo rebotar (reflejarse) o atravesar el prisma (refractarse).'
+                        },
+                        {
+                            title: 'Desafío de Luz',
+                            contentTitle: 'Gana Alpacas de Luz',
+                            type: 'quiz',
+                            quizId: 'quiz-2'
+                        },
+                        {
+                            title: 'Curiosidad de Luz',
+                            contentTitle: '¿Qué es realmente la luz?',
+                            type: 'video',
+                            embedId: 'DkcEAz09Buo', 
+                            desc: 'Descubre el misterio: ¿Es la luz una onda o una partícula? Un viaje al mundo cuántico.', 
+                            keyPoints: ['Onda vs Partícula', 'Fotones', 'Dualidad']
+                        },
+                        {
+                            title: 'Chat con Chispa',
+                            contentTitle: '💬 Conversa con Chispa',
+                            type: 'ai',
+                            aiId: 'ai-2'
+                        }
+                    ]
+                },
+                'modulo-3': {
+                    title: 'Módulo 3: Energía',
+                    steps: [
+                        {
+                            title: 'Introducción: Energía',
+                            contentTitle: 'La Montaña Rusa de la Energía',
+                            type: 'video',
+                            embedId: 'KP8_o65kfgY', 
+                            desc: 'Descubre cómo la altura se transforma en velocidad y viceversa.',
+                            keyPoints: ['Energía Potencial: Energía almacenada por altura', 'Energía Cinética: Energía del movimiento', 'Conservación: La energía no se pierde, se transforma']
+                        },
+                        {
+                            title: 'Lectura: Tipos de Energía',
+                            contentTitle: '🔋 La Energía: El Superpoder Invisible del Universo',
+                            type: 'read',
+                            html: `
+                                <div class="prose prose-lg text-slate-600 max-w-none">
+                                    <p class="lead text-xl text-slate-700 font-medium mb-6">
+                                        Mira a tu alrededor. ¿Ves algo moviéndose? ¿Ves una luz brillando? ¿Sientes el calor del sol? Todo eso sucede gracias a algo invisible pero increíblemente poderoso llamado <strong>ENERGÍA</strong>. Es como el combustible mágico que hace funcionar al universo entero.
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-green-800 mt-8 mb-4">El Superhéroe que Cambia de Disfraz</h3>
+                                    <p>
+                                        La energía tiene una regla de oro que nunca, nunca rompe: <strong>La energía no se crea ni se destruye, solo se transforma</strong>. Esto significa que la energía es inmortal. No puedes "hacer" energía de la nada, y tampoco puedes "matarla". Solo puedes cambiarle el traje.
+                                    </p>
+                                    <p>
+                                        Por ejemplo, la energía química en tu desayuno (cereal con leche) se transforma en energía de movimiento cuando corres al recreo. ¡Tú eres una máquina de transformar energía!
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-green-800 mt-8 mb-4">Los Dos Grandes Rivales de la Montaña Rusa 🎢</h3>
+                                    <p>
+                                        Para entender cómo funciona esto, imaginemos que estamos en el parque de diversiones, subidos en la montaña rusa más alta del mundo. Aquí es donde conocemos a los dos tipos principales de energía mecánica:
+                                    </p>
+
+                                    <div class="grid md:grid-cols-2 gap-8 my-8">
+                                        <div class="bg-sky-50 p-6 rounded-2xl border-t-4 border-sky-500 shadow-sm">
+                                            <h4 class="font-black text-sky-900 text-xl mb-3">1. Energía Potencial (EP) 🏔️</h4>
+                                            <p class="text-sm">
+                                                Es la energía "tímida", la que está esperando. Depende de la <strong>altura</strong>. Mientras el carrito sube "clac, clac, clac" hasta la cima, está guardando energía. Cuanto más alto subas, más energía potencial tienes acumulada. Es como estirar la cuerda de un arco: estás guardando fuerza para el disparo. En la cima, justo antes de caer, ¡tienes muchísima energía potencial!
+                                            </p>
+                                        </div>
+                                        <div class="bg-orange-50 p-6 rounded-2xl border-t-4 border-orange-500 shadow-sm">
+                                            <h4 class="font-black text-orange-900 text-xl mb-3">2. Energía Cinética (EC) 🏎️</h4>
+                                            <p class="text-sm">
+                                                Es la energía de la "fiesta", la energía del <strong>movimiento</strong> puro. En el momento en que el carrito se suelta y empieza a caer, ¡la magia ocurre! Toda esa energía potencial de altura se transforma rápidamente en velocidad. Cuanto más rápido vas, más energía cinética tienes.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="text-2xl font-bold text-green-800 mt-8 mb-4">El Gran Intercambio ✨</h3>
+                                    <p>
+                                        Lo genial es que es un intercambio perfecto. Cuando bajas la colina gritando, pierdes altura (adiós energía potencial) pero ganas velocidad (hola energía cinética). Y cuando vuelves a subir otra colina, pierdes velocidad pero ganas altura de nuevo. Es como pasar dinero de tu bolsillo derecho al izquierdo: el dinero total sigue siendo el mismo.
+                                    </p>
+
+                                    <h3 class="text-2xl font-bold text-green-800 mt-8 mb-4">¿Y quién se robó mi energía? 🔥</h3>
+                                    <p>
+                                        Seguro piensas: "Si la energía nunca muere, ¿por qué la montaña rusa se detiene al final?". ¡Excelente pregunta, detective! En el mundo real, existe un villano llamado <strong>fricción</strong>.
+                                    </p>
+                                    <p>
+                                        Mientras patinas o viajas en el carrito, las ruedas rozan contra el suelo y el aire choca contra tu cuerpo. Ese roce "roba" un poquito de tu energía de movimiento y la convierte en... ¡CALOR! Si tocas las ruedas de un skate después de usarlo mucho, verás que están calientes. La energía no desapareció, ¡simplemente se disfrazó de calor y se fue al aire!
+                                    </p>
+                                </div>
+                            `
+                        },
+                        {
+                            title: 'Simulador de Energía',
+                            contentTitle: 'Parque de Patinaje',
+                            type: 'iframe',
+                            url: 'https://phet.colorado.edu/sims/html/energy-skate-park-basics/latest/energy-skate-park-basics_es.html',
+                            desc: 'Construye tu pista y observa cómo cambia la energía mientras patinas.'
+                        },
+                        {
+                            title: 'Desafío de Energía',
+                            contentTitle: 'Gana Alpacas Veloces',
+                            type: 'quiz',
+                            quizId: 'quiz-3'
+                        },
+                        {
+                            title: 'Curiosidad de Energía',
+                            contentTitle: '¿Qué es realmente la Energía?',
+                            type: 'video',
+                            embedId: 'KlRLGXbtgAA', 
+                            desc: 'Un vistazo profundo a qué es la energía más allá de lo que vemos.',
+                            keyPoints: ['La energía es abstracta', 'Se conserva en el tiempo', 'No es un fluido místico']
+                        },
+                        {
+                            title: 'Chat con Chispa',
+                            contentTitle: '💬 Conversa con Chispa',
+                            type: 'ai',
+                            aiId: 'ai-3'
+                        }
+                    ]
+                }
+            };
+
+            // RENDER LOGIC
+            let currentModKey = null;
+            let currentStepIdx = 0;
+
+            document.querySelectorAll('.module-btn, .carousel-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modKey = e.target.getAttribute('data-module');
+                    loadModule(modKey);
+                    toggleView(true);
+                });
+            });
+
+            function loadModule(key) {
+                currentModKey = key;
+                currentStepIdx = 0;
+                const mod = modules[key];
+                
+                document.getElementById('lesson-title').innerText = mod.title;
+                renderMenu(mod);
+                renderStep(mod, 0);
+            }
+
+            function renderMenu(mod) {
+                const list = document.querySelector('#module-menu ul');
+                list.innerHTML = '';
+                mod.steps.forEach((step, idx) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-slate-50 transition flex items-center gap-3 ${idx === currentStepIdx ? 'bg-sky-50 text-sky-700 font-bold' : 'text-gray-500'}" onclick="changeStep(${idx})">
+                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs border ${idx === currentStepIdx ? 'border-sky-500 bg-sky-100' : 'border-gray-300'}">${idx + 1}</span>
+                            ${step.title}
+                        </button>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+
+            window.changeStep = (idx) => {
+                currentStepIdx = idx;
+                renderMenu(modules[currentModKey]);
+                renderStep(modules[currentModKey], idx);
+            };
+
+            function renderStep(mod, idx) {
+                const step = mod.steps[idx];
+                const contentDiv = document.getElementById('step-content');
+                document.getElementById('step-title').innerText = step.contentTitle;
+                
+                let html = '';
+
+                if(step.type === 'video') {
+                    const thumbUrl = 'https://img.youtube.com/vi/' + step.embedId + '/hqdefault.jpg';
+                    const watchUrl = 'https://www.youtube.com/watch?v=' + step.embedId;
+                    html = `
+                        <p class="text-lg mb-6">${step.desc}</p>
+                        <a href="${watchUrl}" target="_blank" class="video-link-container group">
+                            <img src="${thumbUrl}" alt="Video Thumbnail" class="video-thumbnail">
+                            <div class="play-button-overlay"></div>
+                            <div class="youtube-label">▶ Ver en YouTube</div>
+                        </a>
+                        <div class="mt-8 bg-yellow-50 p-6 rounded-xl border border-yellow-200">
+                            <h5 class="font-bold text-yellow-800 text-lg mb-3">📌 Puntos Clave:</h5>
+                            <ul class="list-disc ml-5 space-y-2 text-yellow-900">
+                                ${step.keyPoints.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else if (step.type === 'read') {
+                    html = step.html;
+                } else if (step.type === 'iframe') {
+                    html = `
+                        <p class="mb-4">${step.desc}</p>
+                        <iframe src="${step.url}" width="100%" height="600" class="rounded-xl border border-gray-200 shadow-sm"></iframe>
+                    `;
+                } else if (step.type === 'quiz') {
+                    html = `
+                        <div class="alpaca-progress max-w-md mx-auto">
+                            <div id="alpaca-count" class="text-2xl font-bold text-amber-700">0/5 Alpacas</div>
+                            <div class="progress-bar"><div id="alpaca-bar" class="progress-fill" style="width: 0%"></div></div>
+                            <p id="alpaca-msg" class="text-sm font-bold text-amber-600">¡Responde bien para ganar!</p>
+                        </div>
+                        <div id="quiz-area" class="mt-8"></div>
+                    `;
+                    setTimeout(() => initQuiz(currentModKey), 100);
+                } else if (step.type === 'ai') {
+                    // MINI CHAT EN LECCION
+                    html = `
+                        <div class="mini-ai-chat">
+                            <div id="ai-messages" class="h-64 overflow-y-auto mb-4 space-y-2 p-2">
+                                <div class="ai-message ai-bot-message">¡Hola! Soy Chispa. ¿Qué duda tienes sobre esta lección?</div>
+                            </div>
+                            <div id="ai-thinking" class="hidden text-xs text-gray-500 italic ml-2 mb-2">Chispa está pensando<span class="thinking-dots"></span></div>
+                            <div class="flex gap-2">
+                                <input type="text" id="ai-input" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-sky-500" placeholder="Escribe aquí..." onkeypress="handleAiEnter(event)">
+                                <button onclick="sendAiMessage()" class="btn-primary">Enviar</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                contentDiv.innerHTML = html;
+                if (typeof MathJax !== 'undefined' && typeof MathJax.typesetPromise === 'function') {
+                    MathJax.typesetPromise();
+                }
+            }
+
+            // QUIZ LOGIC
+            const quizData = {
+                'modulo-1': [
+                    { q: "¿Qué mide un termómetro?", opt: ["Tiempo", "Temperatura", "Distancia"], ans: 1 },
+                    { q: "¿Unidad de masa?", opt: ["Kilogramo", "Metro", "Segundo"], ans: 0 },
+                    { q: "¿Qué instrumento pesa?", opt: ["Balanza", "Reloj", "Regla"], ans: 0 },
+                    { q: "¿Qué mide el reloj?", opt: ["Masa", "Tiempo", "Velocidad"], ans: 1 },
+                    { q: "¿Cuántos cm en 1 metro?", opt: ["10", "100", "1000"], ans: 1 }
+                ],
+                'modulo-2': [
+                    { q: "¿La luz viaja en...?", opt: ["Círculos", "Línea Recta", "Zigzag"], ans: 1 },
+                    { q: "¿Espejo funciona por...?", opt: ["Reflexión", "Refracción", "Magia"], ans: 0 },
+                    { q: "¿Arcoíris es...?", opt: ["Reflexión", "Refracción", "Absorción"], ans: 1 },
+                    { q: "¿Lupa hace...?", opt: ["Reflexión", "Refracción", "Nada"], ans: 1 },
+                    { q: "¿Velocidad luz?", opt: ["Lenta", "Rápida", "Media"], ans: 1 }
+                ],
+                'modulo-3': [
+                    { q: "¿Energía arriba?", opt: ["Potencial", "Cinética", "Ninguna"], ans: 0 },
+                    { q: "¿Energía movimiento?", opt: ["Potencial", "Cinética", "Química"], ans: 1 },
+                    { q: "¿Más rápido es...?", opt: ["Más Potencial", "Más Cinética", "Más Masa"], ans: 1 },
+                    { q: "¿Fricción crea...?", opt: ["Frío", "Calor", "Luz"], ans: 1 },
+                    { q: "¿Energía se crea?", opt: ["Sí", "No, se transforma", "A veces"], ans: 1 }
+                ]
+            };
+            
+            let quizScore = 0;
+            let currentQuestionIndex = 0;
+
+            window.initQuiz = (modKey) => {
+                quizScore = 0;
+                currentQuestionIndex = 0;
+                loadQuestion(modKey);
+            };
+
+            function loadQuestion(modKey) {
+                if (currentQuestionIndex >= 5) { showWin(); return; }
+                const q = quizData[modKey][currentQuestionIndex];
+                const area = document.getElementById('quiz-area');
+                area.innerHTML = `
+                    <div class="practice-question animate-fade-in">
+                        <div class="mb-2 text-sm font-bold text-sky-500 uppercase tracking-wide">Pregunta ${currentQuestionIndex + 1} de 5</div>
+                        <h4 class="font-bold text-xl mb-4 text-slate-800">${q.q}</h4>
+                        <div>${q.opt.map((o, i) => `<button class="practice-option" onclick="checkAnswer(${i}, ${q.ans}, '${modKey}')">${o}</button>`).join('')}</div>
+                    </div>
+                `;
+            }
+
+            window.checkAnswer = (selected, correct, modKey) => {
+                const options = document.querySelectorAll('.practice-option');
+                options[selected].classList.add(selected === correct ? 'correct' : 'incorrect');
+                options[correct].classList.add('correct');
+                if (selected === correct) { quizScore++; updateScoreUI(); }
+                setTimeout(() => { currentQuestionIndex++; loadQuestion(modKey); }, 1500);
+            };
+
+            function updateScoreUI() {
+                document.getElementById('alpaca-count').innerText = `${quizScore}/5 Alpacas`;
+                document.getElementById('alpaca-bar').style.width = `${(quizScore/5)*100}%`;
+            }
+
+            function showWin() {
+                let rewardImg = 'https://i.imgur.com/RK82SsM.jpeg';
+                if(currentModKey === 'modulo-1') rewardImg = 'https://res.cloudinary.com/pixel-papercraft/image/upload/c_limit,q_auto:best,w_1000/v1/users/o/odf/KT_qoF18j2OfqNb6A9Eso.png?_a=BAMABkeA0';
+                if(currentModKey === 'modulo-2') rewardImg = 'https://res.cloudinary.com/pixel-papercraft/image/upload/c_limit,q_auto:best,w_1000/v1/users/o/odf/AwlpJt7yQ5vJ7w3rk8IB3.png?_a=BAMABkeA0';
+                if(currentModKey === 'modulo-3') rewardImg = 'https://res.cloudinary.com/pixel-papercraft/image/upload/c_limit,q_auto:best,w_1000/v1/users/f/fluffymisty/ON7_fOVILJ6A91Wbg1u5D.png?_a=BAMABkeA0';
+
+                document.getElementById('quiz-area').innerHTML = `
+                    <div class="text-center p-8 bg-green-50 rounded-2xl border border-green-200 shadow-xl">
+                        <div class="text-6xl mb-4">🎁</div>
+                        <h3 class="text-3xl font-black text-green-800 mb-2">¡Completado!</h3>
+                        <p class="mb-4">Puntaje: ${quizScore}/5</p>
+                        ${quizScore >= 4 ? `<img src="${rewardImg}" class="w-full rounded-lg mb-4 cursor-pointer" onclick="printImage(this.src)"><button class="btn-primary w-full" onclick="printImage('${rewardImg}')">🖨️ Imprimir</button>` : `<p>¡Inténtalo de nuevo para el premio!</p><button class="btn-secondary mt-4" onclick="initQuiz('${currentModKey}')">Reintentar</button>`}
+                    </div>
+                `;
+            }
+
+            // --- CEREBRO MEJORADO DE CHISPA (IA LOCAL) ---
+            const aiBrain = [
+                { keys: ['hola', 'buenos dias', 'buenas'], resp: "¡Hola! Soy Chispa 🦙. Estoy lista para aprender física contigo. ¿En qué puedo ayudarte hoy?" },
+                { keys: ['como te llamas', 'quien eres', 'tu nombre'], resp: "Me llamo Chispa y soy una alpaca científica. ¡Me encanta medir cosas y correr rápido!" },
+                { keys: ['gracias', 'gracias chispa'], resp: "¡De nada! La ciencia es más divertida entre amigos." },
+                { keys: ['adios', 'chao', 'hasta luego'], resp: "¡Hasta la próxima! Recuerda: la energía nunca muere, solo se transforma. 👋" },
+                // Física General
+                { keys: ['fisica', 'que es fisica'], resp: "La física es la ciencia que estudia cómo funciona el universo: desde por qué caen las manzanas 🍎 hasta por qué brillan las estrellas ✨." },
+                { keys: ['atomo', 'atomos'], resp: "Los átomos son como los legos del universo. Todo lo que ves está hecho de estas piezas pequeñitas e invisibles." },
+                // Modulo 1: Magnitudes
+                { keys: ['magnitud', 'medir', 'medicion'], resp: "Una magnitud es todo aquello que se puede medir con un número y una unidad. Por ejemplo: tu altura, tu peso o el tiempo que tardas en comer." },
+                { keys: ['metro', 'longitud', 'distancia'], resp: "El metro (m) es la unidad reina para medir distancias. ¡Originalmente se definió midiendo la Tierra!" },
+                { keys: ['kilo', 'kilogramo', 'masa', 'peso'], resp: "El kilogramo (kg) mide la masa, o sea, cuánta 'materia' tiene un cuerpo. ¡No es lo mismo que el peso, aunque a veces los confundimos!" },
+                { keys: ['segundo', 'tiempo'], resp: "El segundo (s) mide el tiempo. ¡Un segundo es lo que tarda la luz en viajar 300,000 km... o lo que tardas en decir 'uno'!" },
+                // Modulo 2: Luz
+                { keys: ['luz', 'fotones', 'foton'], resp: "La luz es energía que viaja rapidísimo (300,000 km/s). Está hecha de partículas llamadas fotones. ⚡" },
+                { keys: ['reflexion', 'espejo', 'rebote'], resp: "La reflexión es cuando la luz choca contra algo brillante (como un espejo) y rebota. ¡Por eso puedes ver tu cara guapa!" },
+                { keys: ['refraccion', 'lente', 'agua'], resp: "La refracción es cuando la luz se dobla al pasar por agua o vidrio. ¡Es lo que hace que los lápices parezcan rotos en un vaso!" },
+                { keys: ['arcoiris', 'colores', 'color'], resp: "El arcoíris sale cuando la luz blanca pasa por gotas de lluvia y se separa en 7 colores. ¡Es magia científica! 🌈" },
+                // Modulo 3: Energía
+                { keys: ['energia', 'que es energia'], resp: "La energía es la capacidad de hacer funcionar las cosas. Sin energía, nada se mueve, nada brilla y nada vive." },
+                { keys: ['cinetica', 'movimiento', 'velocidad'], resp: "La energía cinética es la energía del movimiento. Si corres muy rápido, ¡tienes mucha energía cinética! 🏃‍♂️" },
+                { keys: ['potencial', 'altura', 'guardada'], resp: "La energía potencial es energía guardada esperando a ser usada. Como cuando estás quieto en lo alto de un tobogán. 🏔️" },
+                { keys: ['friccion', 'roce'], resp: "La fricción es una fuerza que frena el movimiento cuando dos cosas se rozan. ¡Y también genera calor! Frótate las manos y verás." },
+                { keys: ['gravedad'], resp: "La gravedad es el pegamento del universo. Es la fuerza invisible que nos mantiene pegados al suelo para no salir volando." }
+            ];
+
+            function getAiResponse(text) {
+                text = text.toLowerCase();
+                const match = aiBrain.find(entry => entry.keys.some(key => text.includes(key)));
+                if (match) return match.resp;
+                
+                const defaults = [
+                    "¡Mmm! 🤔 Esa pregunta es interesante. Intenta preguntarme sobre 'luz', 'energía' o 'medidas'.",
+                    "Mis neuronas de alpaca están procesando eso... ¿Puedes preguntarlo de otra forma? Sé mucho sobre física.",
+                    "¡Carambolas! No estoy segura. ¿Hablamos de átomos, velocidad o arcoíris?",
+                    "Soy una experta en ciencia 🧪. Pregúntame '¿qué es la luz?' o '¿qué es la energía cinetica?'"
+                ];
+                return defaults[Math.floor(Math.random() * defaults.length)];
+            }
+
+            // MANEJO DE CHAT
+            window.handleGlobalAiEnter = (e) => { if(e.key === 'Enter') sendGlobalAiMessage(); };
+            window.sendGlobalAiMessage = () => handleChatSend('global-ai-input', 'global-ai-messages');
+            
+            window.handleAiEnter = (e) => { if(e.key === 'Enter') sendAiMessage(); };
+            window.sendAiMessage = () => handleChatSend('ai-input', 'ai-messages');
+
+            function handleChatSend(inputId, containerId) {
+                const input = document.getElementById(inputId);
+                const text = input.value.trim();
+                if (!text) return;
+
+                // 1. Mostrar mensaje usuario
+                addMsgToContainer(text, 'user', containerId);
+                input.value = '';
+
+                // 2. Simular "Pensando..."
+                const thinkingDiv = document.getElementById('ai-thinking');
+                if(thinkingDiv) thinkingDiv.classList.remove('hidden');
+
+                // 3. Respuesta con delay natural
+                setTimeout(() => {
+                    const response = getAiResponse(text);
+                    if(thinkingDiv) thinkingDiv.classList.add('hidden');
+                    addMsgToContainer(response, 'bot', containerId);
+                }, 1000 + Math.random() * 500); 
+            }
+
+            function addMsgToContainer(text, type, containerId) {
+                const div = document.createElement('div');
+                div.className = `ai-message ${type === 'user' ? 'ai-user-message' : 'ai-bot-message'}`;
+                div.innerText = text;
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.appendChild(div);
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
