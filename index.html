@@ -216,6 +216,9 @@
             80%, 100% { content: ''; }
         }
 
+        /* Imagen de recompensa clicable */
+        .reward-img { cursor: pointer; }
+
         .btn-primary {
             background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white;
             padding: 12px 24px; border-radius: 10px; font-weight: 700; transition: transform 0.2s;
@@ -482,7 +485,7 @@
         <div class="flex flex-col lg:flex-row gap-8">
             <aside class="w-full lg:w-1/4">
                 <nav id="module-menu" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Ruta de Aprendizaje</h3>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Ruta de Aprendizaje</h3>
                     <ul class="space-y-2"></ul>
                 </nav>
             </aside>
@@ -1047,7 +1050,18 @@
                         <div class="text-6xl mb-4">🎁</div>
                         <h3 class="text-3xl font-black text-green-800 mb-2">¡Completado!</h3>
                         <p class="mb-4">Puntaje: ${quizScore}/5</p>
-                        ${quizScore >= 4 ? `<img src="${rewardImg}" class="w-full rounded-lg mb-4 cursor-pointer" onclick="printImage(this.src)"><button class="btn-primary w-full" onclick="printImage('${rewardImg}')">🖨️ Imprimir</button>` : `<p>¡Inténtalo de nuevo para el premio!</p><button class="btn-secondary mt-4" onclick="initQuiz('${currentModKey}')">Reintentar</button>`}
+                        ${quizScore >= 4 ? `
+                            <a href="${rewardImg}" target="_blank" rel="noopener noreferrer">
+                                <img src="${rewardImg}" class="w-full rounded-lg mb-4 reward-img" alt="Recompensa - Chiqui">
+                            </a>
+                            <div class="flex gap-3">
+                                <button class="btn-primary flex-1" onclick="printImage('${rewardImg}')">🖨️ Imprimir</button>
+                                <a class="btn-secondary flex-1 inline-flex items-center justify-center" href="${rewardImg}" target="_blank" rel="noopener noreferrer">🔍 Abrir imagen</a>
+                            </div>
+                        ` : `
+                            <p>¡Inténtalo de nuevo para el premio!</p>
+                            <button class="btn-secondary mt-4" onclick="initQuiz('${currentModKey}')">Reintentar</button>
+                        `}
                     </div>
                 `;
             }
